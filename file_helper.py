@@ -18,6 +18,8 @@ class Movie:
         self.current_movie_path = os.path.join(movies_path, folder_string)
         self.file_name = self.get_file_name(movies_path)
         self.have_subtitle = bool(find_file(self.file_name + '.srt', self.current_movie_path))
+        self.quality = self.get_file_quality()
+        self.is_extended = 'extended' in self.file_name.lower()
 
     def get_file_name(self, movies_path):
         files_in_folder = os.listdir(os.path.join(movies_path, self.folder_string))
@@ -28,8 +30,26 @@ class Movie:
                 return file.split('.mp4')[0]
         return ""
 
+    def get_file_quality(self):
+        file_name = self.file_name.lower().replace('.', '')
+        if 'brrip' in file_name:
+            return 'bluray'
+        if 'bluray' in file_name:
+            return 'bluray'
+        if 'web-dl' in file_name:
+            return 'webdl'
+        if 'webdl' in file_name:
+            return 'webdl'
+        if 'webrip' in file_name:
+            return 'webdl'
+        if 'webrp' in file_name:
+            return 'webdl'
+        if 'blury' in file_name:
+            return 'bluray'
+        return 'bluray'
+
     def __repr__(self):
-        return self.name + ' - ' + self.name_detail + ' - ' + self.year + ' - ' + str(self.have_subtitle)
+        return self.name + ' - ' + self.name_detail + ' - ' + self.year + ' - ' + str(self.have_subtitle) + ' - ' + self.quality
 
 
 def find_file(pattern, path):
@@ -48,5 +68,6 @@ def get_movies(debug):
     movies = []
     for movie_folder in os.listdir(movies_path):
         movies.append(Movie(movie_folder))
-    print(movies)
+        if debug:
+            print('found on disk: ', Movie(movie_folder))
     return movies
