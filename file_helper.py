@@ -71,3 +71,7 @@ def get_movies(debug):
         if debug:
             print('found on disk: ', Movie(movie_folder))
     return movies
+
+
+def rename_subtitle(movie):
+    ...

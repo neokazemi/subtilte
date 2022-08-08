@@ -1,6 +1,7 @@
 import requests
 from file_helper import *
 from bs4 import BeautifulSoup
+import zipfile, io
 
 
 class MovieResult:
@@ -103,12 +104,28 @@ def choose_subtitle(sub_list, movie):
     return sub_list[0]
 
 
+def get_chosen_subtitle_download_link(chosen_subtitle):
+    res = requests.get('https://subf2m.co' + chosen_subtitle.link)
+    soup = BeautifulSoup(res.content, features="html.parser")
+    return soup.select('a#downloadButton')[0].get('href')
+
+
+def download_subtitle(link, movie):
+    print('started downloading subtitle for', movie.folder_string)
+    r = requests.get("https://subf2m.co" + link)
+    zip_file = zipfile.ZipFile(io.BytesIO(r.content))
+    zip_file.extractall(movie.current_movie_path)
+    print('subtitle downloaded')
+
+
 def download_movie_subtitle(movie):
     query_results = get_search_results_for_movie(movie)
     chosen_movie_link = choose_movie_result(query_results, movie)
     available_subtitle_list = get_subtitle_list(chosen_movie_link)
     chosen_subtitle = choose_subtitle(available_subtitle_list, movie)
-    print(chosen_subtitle.link)
+    download_link = get_chosen_subtitle_download_link(chosen_subtitle)
+    download_subtitle(download_link, movie)
+    rename_subtitle(movie)
 
 
 def download_all_movies_subtitle(movies, debug):
