@@ -6,7 +6,7 @@ import fnmatch
 class Movie:
     def __init__(self, folder_string):
         self.name = folder_string.split("(")[0].split("-")[0].strip()
-        self.year = folder_string[folder_string.find("(")+1:folder_string.find(")")]
+        self.year = folder_string[folder_string.find("(") + 1:folder_string.find(")")]
         if len(folder_string.split('-')) > 1:
             self.name_detail = folder_string.split("-")[1].split('(')[0].strip()
         else:
@@ -49,7 +49,8 @@ class Movie:
         return 'bluray'
 
     def __repr__(self):
-        return self.name + ' - ' + self.name_detail + ' - ' + self.year + ' - ' + str(self.have_subtitle) + ' - ' + self.quality
+        return self.name + ' - ' + self.name_detail + ' - ' + self.year + ' - ' + str(
+            self.have_subtitle) + ' - ' + self.quality
 
 
 def find_file(pattern, path):
@@ -74,4 +75,12 @@ def get_movies(debug):
 
 
 def rename_subtitle(movie):
-    ...
+    sub_files = find_file('*.srt', movie.current_movie_path)
+    sub_files.sort(key=lambda sub_file: not 'utf-8' in sub_file.lower())
+    os.rename(sub_files[0], os.path.join(movie.current_movie_path, movie.file_name + '.srt'))
+    sub_files.pop(0)
+    for sub_file in sub_files:
+        os.remove(sub_file)
+    extra_files = find_file('*.txt', movie.current_movie_path)
+    for extra_file in extra_files:
+        os.remove(extra_file)
