@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 class MovieResult:
     def __init__(self, title, link):
         self.name = title.split("(")[0].split(":")[0].strip()
-        self.year = title[title.find("(")+1:title.find(")")]
+        self.year = title[title.find("(") + 1:title.find(")")]
         if len(title.split(':')) > 1:
             self.name_detail = title.split(":")[1].split('(')[0].strip()
         else:
@@ -23,6 +23,7 @@ class SubtitleResult:
         self.rate_good = self.get_rating(html)
         self.link = self.get_link(html)
         self.is_translator_good = self.get_translator_certified(html.text.lower())
+        self.is_trailer = 'trailer' in html.text.lower()
 
     def get_rating(self, html):
         return bool(html.select('.rate.good'))
@@ -43,7 +44,7 @@ class SubtitleResult:
             return 'webdl'
         if 'blury' in quality_info:
             return 'bluray'
-        return 'bluray'
+        return ''
 
     def get_link(self, html):
         return html.select('a.download')[0].get('href')
@@ -94,8 +95,11 @@ def get_subtitle_list(page_link):
 
 def choose_subtitle(sub_list, movie):
     sub_list = list(filter(lambda sub: sub.quality == movie.quality, sub_list))
+    sub_list = list(filter(lambda sub: sub.is_trailer == False, sub_list))
     sub_list.sort(key=lambda sub: not sub.rate_good)
     sub_list.sort(key=lambda sub: not sub.is_translator_good)
+    # for i in sub_list:
+    #     print(sub_list)
     return sub_list[0]
 
 
