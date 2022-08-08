@@ -22,6 +22,7 @@ class SubtitleResult:
         self.quality = self.get_quality(html.text)
         self.rate_good = self.get_rating(html)
         self.link = self.get_link(html)
+        self.is_translator_good = self.get_translator_certified(html.text.lower())
 
     def get_rating(self, html):
         return bool(html.select('.rate.good'))
@@ -46,6 +47,22 @@ class SubtitleResult:
 
     def get_link(self, html):
         return html.select('a.download')[0].get('href')
+
+    def get_translator_certified(self, html):
+        if '30nama' in html:
+            return True
+        if 'امیر طهماسبی' in html:
+            return True
+        if 'حسین غریبی' in html:
+            return True
+        if 'cardinal' in html:
+            return True
+        if 'arian drama' in html:
+            return True
+        return False
+
+    def __repr__(self):
+        return self.quality + ' - ' + str(self.is_translator_good) + ' - ' + str(self.rate_good) + ' - '
 
 
 def get_search_results_for_movie(movie):
@@ -75,10 +92,19 @@ def get_subtitle_list(page_link):
     return results
 
 
+def choose_subtitle(sub_list, movie):
+    sub_list = list(filter(lambda sub: sub.quality == movie.quality, sub_list))
+    sub_list.sort(key=lambda sub: not sub.rate_good)
+    sub_list.sort(key=lambda sub: not sub.is_translator_good)
+    return sub_list[0]
+
+
 def download_movie_subtitle(movie):
     query_results = get_search_results_for_movie(movie)
     chosen_movie_link = choose_movie_result(query_results, movie)
     available_subtitle_list = get_subtitle_list(chosen_movie_link)
+    chosen_subtitle = choose_subtitle(available_subtitle_list, movie)
+    print(chosen_subtitle.link)
 
 
 def download_all_movies_subtitle(movies, debug):
