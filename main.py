@@ -12,6 +12,7 @@ def print_menu():
 if __name__ == "__main__":
     print_menu()
     option = int(input('Enter Your Choice: '))
+    debug = bool(int(input('0 - debug off; 1 - debug on: ')))
     if option == 1:  # get all
-        movies = get_movies()
-        download_all_movies_subtitle(movies)
+        movies = get_movies(debug)
+        download_all_movies_subtitle(movies, debug)

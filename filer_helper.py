@@ -16,7 +16,17 @@ class Movie:
         parent_path = os.sep.join(current_path.split(os.sep)[:-1])
         movies_path = os.path.join(parent_path, "Movies")
         self.current_movie_path = os.path.join(movies_path, folder_string)
-        self.have_subtitle = bool(find_file('*.srt', self.current_movie_path))
+        self.file_name = self.get_file_name(movies_path)
+        self.have_subtitle = bool(find_file(self.file_name + '.srt', self.current_movie_path))
+
+    def get_file_name(self, movies_path):
+        files_in_folder = os.listdir(os.path.join(movies_path, self.folder_string))
+        for file in files_in_folder:
+            if '.mkv' in file:
+                return file.split('.mkv')[0]
+            elif '.mp4' in file:
+                return file.split('.mp4')[0]
+        return ""
 
     def __repr__(self):
         return self.name + ' - ' + self.name_detail + ' - ' + self.year + ' - ' + str(self.have_subtitle)
@@ -31,11 +41,12 @@ def find_file(pattern, path):
     return result
 
 
-def get_movies():
+def get_movies(debug):
     current_path = os.getcwd()
     parent_path = os.sep.join(current_path.split(os.sep)[:-1])
     movies_path = os.path.join(parent_path, "Movies")
     movies = []
     for movie_folder in os.listdir(movies_path):
         movies.append(Movie(movie_folder))
+    print(movies)
     return movies
